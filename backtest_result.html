@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수출 신호 백테스트 · 2025.6 ~ 2026.6</title>
+<style>
+:root {
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --ink: #0f1923;
+  --ink2: #3d4f5e;
+  --mut: #7e92a2;
+  --line: #dde3ea;
+  --up: #0a6e45;
+  --up-bg: #dff2ea;
+  --dn: #b3261e;
+  --dn-bg: #fbe8e7;
+  --neu: #4a5568;
+  --neu-bg: #eef1f5;
+  --brand: #1a3fcf;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --mono: "DM Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
+  --sans: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans);
+  font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+/* layout */
+.shell { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+
+/* hero */
+.hero { margin-bottom: 28px; }
+.hero .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--mut); margin-bottom: 6px; }
+.hero h1 { font-size: 30px; font-weight: 900; letter-spacing: -.03em; line-height: 1.1; }
+.hero h1 em { font-style: normal; color: var(--brand); }
+.hero .desc { color: var(--ink2); font-size: 13.5px; margin-top: 8px; max-width: 640px; }
+
+/* verdict banner */
+.verdict-banner { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0 28px; }
+.vcard { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 18px; flex: 1 1 160px; }
+.vcard .lab { font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--mut); margin-bottom: 4px; }
+.vcard .big { font-size: 28px; font-weight: 900; font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em; line-height: 1; }
+.vcard .sub { font-size: 11.5px; color: var(--ink2); margin-top: 3px; }
+.vcard.pos .big { color: var(--up); }
+.vcard.neg .big { color: var(--dn); }
+.vcard.neu .big { color: var(--brand); }
+
+/* warning box */
+.warn-box { background: var(--warn-bg); border: 1px solid #fcd34d;
+  border-left: 4px solid var(--warn); border-radius: var(--radius);
+  padding: 12px 16px; font-size: 13px; color: #78350f; margin-bottom: 28px; }
+.warn-box b { color: #451a03; }
+
+/* section */
+.sec { margin-bottom: 32px; }
+.sec-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+.sec-head h2 { font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+.sec-head .tag { font-family: var(--mono); font-size: 11px; color: var(--mut);
+  background: var(--neu-bg); border: 1px solid var(--line); border-radius: 6px;
+  padding: 2px 7px; }
+
+/* signal grid */
+.sig-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (max-width: 600px) { .sig-grid { grid-template-columns: 1fr; } }
+
+.sig-card { background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px 18px; }
+.sig-card .sig-name { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
+.sig-card .sig-desc { font-size: 12px; color: var(--mut); margin-bottom: 12px; }
+.sig-card.acc  { border-top: 3px solid var(--up); }
+.sig-card.imp  { border-top: 3px solid #0284c7; }
+.sig-card.slow { border-top: 3px solid #d97706; }
+.sig-card.bad  { border-top: 3px solid var(--dn); }
+
+.hor-row { display: flex; gap: 8px; margin-top: 6px; align-items: center; }
+.hor-lbl { font-family: var(--mono); font-size: 11px; color: var(--mut); width: 36px; }
+.bar-wrap { flex: 1; background: var(--line); border-radius: 4px; height: 8px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+.hor-val { font-family: var(--mono); font-size: 12px; font-weight: 700; width: 52px; text-align: right; }
+.hor-acc { font-family: var(--mono); font-size: 11px; color: var(--mut); width: 46px; text-align: right; }
+
+/* item table */
+.item-table { width: 100%; border-collapse: collapse; background: var(--card);
+  border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.item-table th { background: #f5f7fa; font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ink2);
+  padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line); font-weight: 700; }
+.item-table td { padding: 10px 12px; border-bottom: 1px solid var(--line);
+  font-size: 13px; vertical-align: middle; }
+.item-table tr:last-child td { border-bottom: none; }
+.item-table td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 700;
+  border-radius: 99px; padding: 2px 9px; }
+.pill.pos { background: var(--up-bg); color: var(--up); }
+.pill.neg { background: var(--dn-bg); color: var(--dn); }
+.pill.neu { background: var(--neu-bg); color: var(--neu); }
+
+/* insight box */
+.insight { background: #eef4ff; border: 1px solid #c7d9ff; border-radius: var(--radius);
+  padding: 16px 18px; margin-top: 14px; font-size: 13.5px; color: #1e3a8a; }
+.insight b { color: #1e3a8a; }
+.insight ul { margin: 6px 0 0 18px; }
+.insight li { margin-bottom: 4px; }
+
+footer { text-align: center; font-size: 11.5px; color: var(--mut); margin-top: 40px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="hero">
+    <div class="eyebrow">산업통상부 수출입동향 × KRX 실제 주가 · 2025.6 ~ 2026.6</div>
+    <h1>신호가 <em>진짜</em> 맞았나</h1>
+    <p class="desc">17개 품목 × 12개 발표 시점 × 1·5·20 거래일 구간 — 수출 신호와 실제 주가 수익률을 붙인 백테스트 결과입니다. (벤치마크: 매핑 종목 전체 단순평균)</p>
+  </div>
+
+  <div class="verdict-banner">
+    <div class="vcard neu">
+      <div class="lab">분석 표본</div>
+      <div class="big">204</div>
+      <div class="sub">신호×종목×구간</div>
+    </div>
+    <div class="vcard pos">
+      <div class="lab">가속↑ 20거래일 수익</div>
+      <div class="big">+7.9%</div>
+      <div class="sub">초과수익 +2.5%p</div>
+    </div>
+    <div class="vcard pos">
+      <div class="lab">악화↓ 20거래일 수익</div>
+      <div class="big">+10.0%</div>
+      <div class="sub">초과수익 +3.5%p · 반전 주의</div>
+    </div>
+    <div class="vcard neg">
+      <div class="lab">화장품 20거래일 초과수익</div>
+      <div class="big">−6.5%p</div>
+      <div class="sub">신호와 가장 불일치한 품목</div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <b>결과를 보기 전에:</b> 이 기간(2025.6~2026.6)은 반도체 슈퍼사이클이 겹쳐 <b>시장 전체가 강하게 올랐습니다.</b>
+    "악화 신호 종목도 올랐다"는 결과는 <b>신호가 맞아서가 아니라 시장이 오른 것</b>일 수 있어요.
+    초과수익(종목 − 벤치마크) 숫자가 실질 엣지입니다. 절대 수익률만 보면 오독합니다.
+    표본 12개월·17품목은 통계적으로 작습니다 — 패턴을 보는 것이지 확정이 아닙니다.
+  </div>
+
+  <!-- 신호별 결과 -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>신호 4종 × 구간별 수익률</h2>
+      <span class="tag">막대 = 종목수익률 · 우측 숫자 = 초과수익</span>
+    </div>
+    <div class="sig-grid">
+
+      <!-- 가속 -->
+      <div class="sig-card acc">
+        <div class="sig-name">가속↑</div>
+        <div class="sig-desc">YoY 플러스이면서 전월보다 더 좋아짐 · 84건</div>
+        <div class="hor-row">
+          <div class="hor-lbl">1일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:3%;background:var(--mut)"></div></div>
+          <div class="hor-val" style="color:var(--mut)">−0.6%</div>
+          <div class="hor-acc">+0.1p</div>
+        </div>
+        <div class="hor-row">
+          <div class="hor-lbl">5일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:18%;background:var(--up)"></div></div>
+          <div class="hor-val" style="color:var(--up)">+1.4%</div>
+          <div class="hor-acc">±0.0p</div>
+        </div>
+        <div class="hor-row">
+          <div class="hor-lbl">20일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:79%;background:var(--up)"></div></div>
+          <div class="hor-val" style="color:var(--up)">+7.9%</div>
+          <div class="hor-acc" style="color:var(--up)">+2.5p</div>
+        </div>
+      </div>
+
+      <!-- 개선 -->
+      <div class="sig-card imp">
+        <div class="sig-name">개선↗</div>
+        <div class="sig-desc">YoY 마이너스지만 전월보다 나아짐 · 36건</div>
+        <div class="hor-row">
+          <div class="hor-lbl">1일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:2%;background:var(--mut)"></div></div>
+          <div class="hor-val" style="color:var(--mut)">−1.5%</div>
+          <div class="hor-acc" style="color:var(--mut)">−0.1p</div>
+        </div>
+        <div class="hor-row">
+          <div class="hor-lbl">5일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:24%;background:var(--up)"></div></div>
+          <div class="hor-val" style="color:var(--up)">+2.4%</div>
+          <div class="hor-acc" style="color:var(--up)">+2.2p</div>
+        </div>
+        <div class="hor-row">
+          <div class="hor-lbl">20일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:36%;background:var(--up)"></div></div>
+          <div class="hor-val" style="color:var(--up)">+3.6%</div>
+          <div class="hor-acc" style="color:var(--up)">+1.8p</div>
+        </div>
+      </div>
+
+      <!-- 둔화 -->
+      <div class="sig-card slow">
+        <div class="sig-name">둔화→</div>
+        <div class="sig-desc">YoY 플러스지만 전월보다 나빠짐 · 31건</div>
+        <div class="hor-row">
+          <div class="hor-lbl">1일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:3%;background:var(--mut)"></div></div>
+          <div class="hor-val" style="color:var(--mut)">−0.5%</div>
+          <div class="hor-acc" style="color:var(--up)">+0.2p</div>
+        </div>
+        <div class="hor-row">
+          <div class="hor-lbl">5일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:33%;background:var(--up)"></div></div>
+          <div class="hor-val" style="color:var(--up)">+3.3%</div>
+          <div class="hor-acc" style="color:var(--up)">+2.1p</div>
+        </div>
+        <div class="hor-row">
+          <div class="hor-lbl">20일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:40%;background:var(--up)"></div></div>
+          <div class="hor-val" style="color:var(--up)">+4.0%</div>
+          <div class="hor-acc" style="color:var(--up)">+1.3p</div>
+        </div>
+      </div>
+
+      <!-- 악화 -->
+      <div class="sig-card bad">
+        <div class="sig-name">악화↓</div>
+        <div class="sig-desc">YoY 마이너스이고 더 나빠짐 · 53건</div>
+        <div class="hor-row">
+          <div class="hor-lbl">1일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:14%;background:var(--dn)"></div></div>
+          <div class="hor-val" style="color:var(--dn)">+1.4%</div>
+          <div class="hor-acc" style="color:var(--up)">+0.3p</div>
+        </div>
+        <div class="hor-row">
+          <div class="hor-lbl">5일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:39%;background:var(--dn)"></div></div>
+          <div class="hor-val" style="color:var(--dn)">+3.9%</div>
+          <div class="hor-acc" style="color:var(--up)">+0.3p</div>
+        </div>
+        <div class="hor-row">
+          <div class="hor-lbl">20일</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:100%;background:var(--dn)"></div></div>
+          <div class="hor-val" style="color:var(--dn)">+10.0%</div>
+          <div class="hor-acc" style="color:var(--up)">+3.5p</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <b>뭘 읽어야 하나</b>
+      <ul>
+        <li><b>단기(1일)는 신호와 무관합니다.</b> 가속↑도 −0.6%, 악화↓도 +1.4% — 발표 당일 방향은 신호로 못 맞춥니다. 이미 선반영됐다는 증거예요.</li>
+        <li><b>20거래일(약 1달)은 방향이 어느 정도 나타납니다.</b> 가속↑ 초과수익 +2.5%p, 개선↗ +1.8%p. 다만 신호를 믿고 숏을 쳤을 악화↓가 +10%라는 점은 설명이 필요합니다.</li>
+        <li><b>악화↓가 가장 수익률이 높은 이유:</b> 이 기간 "악화" 신호를 받은 품목이 자동차·가전인데, 마침 현대차·기아·LG전자가 밸류에이션 이슈로 크게 올랐습니다. 신호가 맞은 게 아니라 <b>시장 이벤트가 개입</b>한 거예요. 초과수익 +3.5%p도 이 두 종목 효과입니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 품목별 -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>품목별 20거래일 초과수익</h2>
+      <span class="tag">높을수록 신호가 실제로 효과가 있었던 품목</span>
+    </div>
+    <table class="item-table">
+      <thead>
+        <tr>
+          <th>품목</th>
+          <th style="text-align:right">초과수익 (20일)</th>
+          <th style="text-align:right">종목수익률</th>
+          <th style="text-align:right">적중 / 총횟수</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody id="item-tbody"></tbody>
+    </table>
+    <div class="insight" style="margin-top:14px">
+      <b>패턴 요약</b>
+      <ul>
+        <li><b>반도체·컴퓨터SSD (+14%p 초과수익):</b> 수출 신호가 실제 주가와 가장 잘 붙었습니다. 수출 비중과 단가 데이터가 실적에 직결되는 구조라 당연한 결과예요.</li>
+        <li><b>화장품·농수산식품 (−5~−6%p):</b> 수출은 좋았는데 주가는 빠졌습니다. 아모레퍼시픽·LG생활건강은 이 기간 중국 소비 우려로 디레이팅이 진행 중이었어요. <b>수출 신호가 주가를 이기지 못한 섹터</b>입니다.</li>
+        <li><b>가전 (+11.7%p):</b> 수출 악화 신호였는데 주가가 많이 올랐습니다. LG전자 AI가전 리레이팅 효과 — 신호와 무관한 이벤트예요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 결론 -->
+  <section class="sec">
+    <div class="sec-head"><h2>결론: 이 자료는 예측 도구로 쓸 수 있나</h2></div>
+    <div class="insight" style="background:#f0fdf4;border-color:#a7f3d0;color:#064e3b">
+      <b>조건부 예스 — 단 범위를 좁혀야 합니다</b>
+      <ul>
+        <li>수출 신호는 <b>반도체·SSD처럼 수출 비중이 압도적이고 단가 데이터가 명확한 품목</b>에서 20거래일 기준으로 초과수익을 만들었습니다.</li>
+        <li>화장품·소비재처럼 <b>중국 소비심리·밸류에이션이 더 큰 변수인 섹터</b>는 수출 신호만으론 부족합니다.</li>
+        <li>단기(1거래일)는 선반영 때문에 거의 효과 없습니다. <b>10·20일 누계 → 월간 확정 흐름을 앞서 읽는 것</b>이 진짜 엣지입니다.</li>
+        <li>표본이 12개월로 작습니다. 지금 나온 숫자는 <b>가설을 기각 못 했다는 뜻</b>이지 검증됐다는 뜻이 아닙니다. 최소 24개월 이상 쌓아야 해요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    주가 데이터: KRX (pykrx) · 수출 데이터: 산업통상부 2026년 5월 수출입동향 (관세청 통관기준 잠정치)<br>
+    개인 학습용 도구 · 투자 자문 아님 · 어떤 종목의 매매도 권유하지 않음
+  </footer>
+</div>
+
+<script>
+const ITEMS = [
+  {nm:"반도체",      exc:13.95, ret:18.56, hit:9,  tot:12},
+  {nm:"컴퓨터SSD",   exc:13.95, ret:18.56, hit:9,  tot:12},
+  {nm:"가전",        exc:11.71, ret:16.32, hit:9,  tot:12},
+  {nm:"전기기기",    exc:6.37,  ret:10.98, hit:8,  tot:12},
+  {nm:"이차전지",    exc:4.95,  ret:9.56,  hit:7,  tot:12},
+  {nm:"자동차",      exc:4.24,  ret:8.85,  hit:9,  tot:12},
+  {nm:"자동차부품",  exc:3.04,  ret:7.65,  hit:9,  tot:12},
+  {nm:"석유제품",    exc:1.30,  ret:5.92,  hit:6,  tot:12},
+  {nm:"비철금속",    exc:1.13,  ret:5.74,  hit:8,  tot:12},
+  {nm:"디스플레이",  exc:1.04,  ret:5.66,  hit:7,  tot:12},
+  {nm:"철강",        exc:0.63,  ret:5.24,  hit:8,  tot:12},
+  {nm:"석유화학",    exc:-1.12, ret:3.49,  hit:8,  tot:12},
+  {nm:"일반기계",    exc:-1.15, ret:3.46,  hit:7,  tot:12},
+  {nm:"선박",        exc:-1.92, ret:2.69,  hit:6,  tot:12},
+  {nm:"바이오헬스",  exc:-4.18, ret:0.43,  hit:7,  tot:12},
+  {nm:"농수산식품",  exc:-5.59, ret:-0.97, hit:3,  tot:12},
+  {nm:"화장품",      exc:-6.49, ret:-1.88, hit:5,  tot:12},
+];
+
+function note(nm) {
+  if (nm==="반도체"||nm==="컴퓨터SSD") return "수출↔주가 직결";
+  if (nm==="가전"||nm==="전기기기") return "리레이팅 효과";
+  if (nm==="화장품"||nm==="농수산식품") return "중국소비 디레이팅";
+  if (nm==="바이오헬스") return "CMO 모멘텀 약화";
+  return "";
+}
+
+const tbody = document.getElementById("item-tbody");
+ITEMS.forEach(d => {
+  const excStr = (d.exc >= 0 ? "+" : "") + d.exc.toFixed(1) + "%p";
+  const retStr = (d.ret >= 0 ? "+" : "") + d.ret.toFixed(1) + "%";
+  const cls = d.exc > 2 ? "pos" : d.exc < -1 ? "neg" : "neu";
+  const n = note(d.nm);
+  tbody.innerHTML += `<tr>
+    <td><b>${d.nm}</b>${n ? `<span style="margin-left:6px;font-size:11px;color:var(--mut)">${n}</span>` : ""}</td>
+    <td class="num"><span class="pill ${cls}">${excStr}</span></td>
+    <td class="num">${retStr}</td>
+    <td class="num">${d.hit} / ${d.tot}</td>
+    <td><div style="background:var(--line);border-radius:4px;height:7px;width:100%;overflow:hidden">
+      <div style="height:100%;border-radius:4px;width:${Math.max(0,Math.min(100,(d.hit/d.tot)*100))}%;background:${cls==='pos'?'var(--up)':cls==='neg'?'var(--dn)':'var(--mut)'}"></div>
+    </div></td>
+  </tr>`;
+});
+</script>
+</body>
+</html>
